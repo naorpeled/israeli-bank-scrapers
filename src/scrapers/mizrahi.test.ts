@@ -45,6 +45,7 @@ describe('Mizrahi scraper', () => {
     const scraper = new MizrahiScraper(options);
     const result = await scraper.scrape(testsConfig.credentials.mizrahi);
     expect(result).toBeDefined();
+    console.log(result);
     const error = `${result.errorType || ''} ${result.errorMessage || ''}`.trim();
     expect(error).toBe('');
     expect(result.success).toBeTruthy();

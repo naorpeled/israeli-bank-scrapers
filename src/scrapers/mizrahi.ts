@@ -69,11 +69,26 @@ function createLoginFields(credentials: ScraperCredentials) {
 
 function getPossibleLoginResults(page: Page): PossibleLoginResults {
   return {
-    [LoginResults.Success]: [AFTER_LOGIN_BASE_URL, async () => !!(await page.$x(`//title[contains(., "${emailUpdatePageHebrewTitle}") or contains(., "${emailUpdatePageEnglishTitle}")]`))],
+    // @ts-ignore eslint
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    [LoginResults.Success]: [AFTER_LOGIN_BASE_URL, getSuccessfulLoginResultsOutcome.bind(page)],
     [LoginResults.InvalidPassword]: [async () => !!(await page.$(invalidPasswordSelector))],
     [LoginResults.ChangePassword]: [CHANGE_PASSWORD_URL],
   };
 }
+
+async function getSuccessfulLoginResultsOutcome(page: Page): Promise<boolean> {
+  await page.waitFor(10000);
+
+  const isInEmailUpdatePage = !!(await page.$x(`//title[contains(., "${emailUpdatePageHebrewTitle}") or contains(., "${emailUpdatePageEnglishTitle}")]`));
+  const hasViewCheckingAccountInfoMenuOption = !!(await page.$x('//a//*[contains(text(), "עובר ושב") or contains(text(), "Checking Account")]'));
+
+  console.log('isInEmailUpdatePage', isInEmailUpdatePage);
+  console.log('hasViewCheckingAccountInfoMenuOption', hasViewCheckingAccountInfoMenuOption);
+
+  return isInEmailUpdatePage || hasViewCheckingAccountInfoMenuOption;
+}
+
 
 function getStartMoment(optionsStartDate: Date) {
   const defaultStartMoment = moment().subtract(1, 'years');
